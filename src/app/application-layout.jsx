@@ -35,7 +35,7 @@ import {
 import { usePathname } from 'next/navigation'
 import { Toaster } from 'react-hot-toast'
 
-export function ApplicationLayout({ events, children }) {
+export function ApplicationLayout({ children }) {
   let pathname = usePathname()
 
   return (

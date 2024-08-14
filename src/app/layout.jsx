@@ -1,32 +1,25 @@
-import { getEvents } from '@/data'
+'use client'
 import '@/styles/tailwind.css'
-import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/nextjs'
+import { ClerkProvider, SignedIn, SignedOut, SignIn, SignUp } from '@clerk/nextjs'
+import { usePathname } from 'next/navigation'
 
 import { ApplicationLayout } from './application-layout'
 
-export const metadata = {
-  title: {
-    template: '%s - Catalyst',
-    default: 'Catalyst',
-  },
-  description: '',
-}
-
-export default async function RootLayout({ children }) {
-  let events = await getEvents()
+export default function RootLayout({ children }) {
+  const pathname = usePathname()
 
   return (
     <ClerkProvider
-    appearance={{
-      variables: {
-        colorText: 'white',
-        colorBackground: '#18181B',
-        colorNeutral: 'white',
-        colorInputText: 'white',
-        colorInputBackground: '#18181B',
-        colorPrimary: '#FF0080',
-      },
-    }}
+      appearance={{
+        variables: {
+          colorText: 'white',
+          colorBackground: '#18181B',
+          colorNeutral: 'white',
+          colorInputText: 'white',
+          colorInputBackground: '#18181B',
+          colorPrimary: '#FF0080',
+        },
+      }}
     >
       <html
         lang="en"
@@ -40,11 +33,12 @@ export default async function RootLayout({ children }) {
           <main>
             <SignedOut>
               <div className="flex min-h-screen items-center justify-center">
-                <SignIn routing="hash" />
+                {pathname === '/' && <SignIn routing="hash" signUpUrl="/sign-up" />}
+                {pathname === '/sign-up' && <SignUp routing="hash" signInUrl="/" />}
               </div>
             </SignedOut>
             <SignedIn>
-              <ApplicationLayout events={events}>{children}</ApplicationLayout>
+              <ApplicationLayout>{children}</ApplicationLayout>
             </SignedIn>
           </main>
         </body>
