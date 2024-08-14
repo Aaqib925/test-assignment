@@ -54,7 +54,7 @@ export function CreateTodo({ isOpen, onClose, editTodo }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-      <div className="w-full max-w-lg rounded-lg bg-gray-900 p-8 shadow-lg">
+      <div className="w-full max-w-lg rounded-lg bg-[#18181B] p-8 shadow-lg">
         <Heading level={2} className="mb-6 text-lg text-white">
           {editTodo ? 'Edit Todo' : 'Create Todo'}
         </Heading>
@@ -73,7 +73,7 @@ export function CreateTodo({ isOpen, onClose, editTodo }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Enter todo title"
-            className="bg-gray-800 text-white placeholder-gray-500"
+            className="bg-[#18181B] text-white placeholder-gray-500"
           />
         </InputGroup>
         <br />
@@ -87,7 +87,7 @@ export function CreateTodo({ isOpen, onClose, editTodo }) {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter todo description"
-            className="bg-gray-800 text-white placeholder-gray-500"
+            className="bg-[#18181B] text-white placeholder-gray-500"
             rows={4}
           />
         </InputGroup>
@@ -97,7 +97,7 @@ export function CreateTodo({ isOpen, onClose, editTodo }) {
             Status
           </label>
           <Dropdown>
-            <DropdownButton className="bg-gray-800 text-white">{status}</DropdownButton>
+            <DropdownButton className="bg-[#18181B] text-white">{status}</DropdownButton>
             <DropdownMenu>
               <DropdownItem onClick={() => setStatus('Pending')}>Pending</DropdownItem>
               <DropdownItem onClick={() => setStatus('In Progress')}>In Progress</DropdownItem>
@@ -106,12 +106,8 @@ export function CreateTodo({ isOpen, onClose, editTodo }) {
           </Dropdown>
         </div>
         <div className="flex justify-end gap-4">
-          <Button onClick={handleSave} color="blue">
-            {editTodo ? 'Save Changes' : 'Create'}
-          </Button>
-          <Button onClick={onClose} color="red" className="bg-red-600 hover:bg-red-700">
-            Cancel
-          </Button>
+          <Button onClick={handleSave} color='pink'>{editTodo ? 'Save Changes' : 'Create'}</Button>
+          <Button onClick={onClose} >Cancel</Button>
         </div>
       </div>
     </div>

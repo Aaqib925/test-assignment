@@ -6,9 +6,9 @@ import { Divider } from '@/components/divider'
 import { Heading, Subheading } from '@/components/heading'
 import { Link } from '@/components/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
-import User from '@/firebase/currentUser'
-import { getRecentUsers } from '@/hooks/useUserFirebase'
+import { getUserById } from '@/hooks/useUserFirebase'
 import { getStatusColor } from '@/utils/statusUtils'
+import { useUser } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 
 export function Stat({ title, value, change }) {
@@ -24,25 +24,28 @@ export function Stat({ title, value, change }) {
 }
 
 export default function Home() {
-  const [users, setUsers] = useState([])
+  const { isLoaded, user } = useUser()
+  const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const fetchedUsers = await getRecentUsers()
-        setUsers(Object.values(fetchedUsers))
-      } catch (err) {
-        setError('Failed to load users.')
-        console.error('Error fetching users:', err)
-      } finally {
-        setLoading(false)
+    if (isLoaded && user) {
+      const fetchUser = async () => {
+        try {
+          const fetchedUserData = await getUserById(user.id)
+          setUserData(fetchedUserData)
+        } catch (err) {
+          setError('Failed to load user data.')
+          console.error('Error fetching user data:', err)
+        } finally {
+          setLoading(false)
+        }
       }
+      fetchUser()
     }
+  }, [isLoaded, user])
 
-    fetchUsers()
-  }, [])
   if (loading)
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -51,53 +54,51 @@ export default function Home() {
     )
   if (error) return <p>{error}</p>
 
+  const todosCount = userData?.todos.length || 0
+
   return (
     <>
-      <Heading className="w-full">Welcome, {<User />}</Heading>
+      <Heading className="w-full">Welcome, {user?.fullName || 'User'}</Heading>
       <div className="mt-8 flex items-end justify-between">
         <Subheading>Overview</Subheading>
       </div>
       <div className="mt-4 grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
-        <Stat title="Total users" value={users.length} change="+0%" />
+        <Stat title="Total todos" value={todosCount} change="+0%" />
       </div>
-      <Subheading className="mt-14">Recent users</Subheading>
+      <Subheading className="mt-14">Recent todos</Subheading>
       <Table className="mt-4 [--gutter:theme(spacing.6)] lg:[--gutter:theme(spacing.10)]">
         <TableHead>
           <TableRow>
-            <TableHeader>Name</TableHeader>
-            <TableHeader>Email</TableHeader>
-            <TableHeader>Todos</TableHeader>
-            <TableHeader>Action</TableHeader>
+            <TableHeader>Title</TableHeader>
+            <TableHeader>Description</TableHeader>
+            <TableHeader>Status</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((user) => (
-            <TableRow key={user.user_id}>
-              <TableCell>{user.full_name}</TableCell>
-              <TableCell>{user.email}</TableCell>
-              <TableCell>
-                {user.todos && user.todos.length >= 1 ? (
-                  <ul>
-                    {user.todos.slice(0, 3).map((todo) => (
-                      <li key={todo.todo_id}>
-                        <strong>{todo.title}</strong>: {todo.description} -{' '}
-                        <Badge color={getStatusColor(todo.status)}>{todo.status}</Badge>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div>This user has not created any todos yet.</div>
-                )}
-              </TableCell>
-              <TableCell>
-                {user.todos && user.todos.length >= 1 && (
-                  <Link href={`/todos/${user.user_id}`}>
+          {userData?.todos.length > 0 ? (
+            <>
+              {userData.todos.slice(0, 3).map((todo) => (
+                <TableRow key={todo.todo_id}>
+                  <TableCell>{todo.title}</TableCell>
+                  <TableCell>{todo.description}</TableCell>
+                  <TableCell>
+                    <Badge color={getStatusColor(todo.status)}>{todo.status}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+              <TableRow>
+                <TableCell colSpan={3} className="text-center">
+                  <Link href={`/todos/${user.id}`}>
                     <button className="text-blue-500 hover:text-blue-700">Show more</button>
                   </Link>
-                )}
-              </TableCell>
+                </TableCell>
+              </TableRow>
+            </>
+          ) : (
+            <TableRow>
+              <TableCell colSpan={3}>You have not created any todos yet.</TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </>

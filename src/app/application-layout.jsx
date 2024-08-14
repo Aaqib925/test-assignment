@@ -32,7 +32,6 @@ import {
   Square2StackIcon,
   TicketIcon,
 } from '@heroicons/react/20/solid'
-import { color } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import { Toaster } from 'react-hot-toast'
 
